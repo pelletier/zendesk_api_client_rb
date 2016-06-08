@@ -256,6 +256,15 @@ describe ZendeskAPI::Client do
     end
   end
 
+  it "retries 3 times on NetworkError" do
+    stub_request(:get, %r{blergh})
+      .to_raise(Errno::ECONNRESET).then
+      .to_raise(Errno::ECONNRESET).then
+      .to_return(:status => 200)
+
+    expect(client.connection.get("blergh").status).to eq(200)
+  end
+
   it "can be subclassed" do
     client = SimpleClient.new do |config|
       config.allow_http = true

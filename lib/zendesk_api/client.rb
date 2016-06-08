@@ -170,6 +170,8 @@ module ZendeskAPI
         builder.use ZendeskAPI::Middleware::Request::Upload
         builder.request :multipart
         builder.use ZendeskAPI::Middleware::Request::EncodeJson
+        builder.request :retry, max: 3, interval: 0.05, interval_randomness: 0.5, backoff_factor: 2,
+                        exceptions: [Faraday::ConnectionFailed]
         builder.use ZendeskAPI::Middleware::Request::Retry, :logger => config.logger if config.retry # Should always be first in the stack
 
         builder.adapter(*adapter)
